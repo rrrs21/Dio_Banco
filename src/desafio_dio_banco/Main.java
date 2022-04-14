@@ -3,70 +3,72 @@ package desafio_dio_banco;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Main {
 	
 	public static void main(String[] args) {
 		
 		Scanner scan = new Scanner(System.in);
-		Cliente roberto = new Cliente();
-		roberto.setNome("Roberto");
-		int opcao;
-		
-	//	Conta cc = new ContaCorrente(roberto);
-	//	Conta poupanca = new ContaPoupanca(roberto);
+		int opcao=0, indice = 0, indiceDestino = 0;
+		String nome, destino; 
+		double valor;
 		Banco banco = new Banco();
 		List<Conta> contas = new ArrayList<Conta>();
-	//	cc.depositar(100);
-//		cc.transferir(20,  poupanca);
-	//	cc.imprimirExtrato();
-//		contas.add(cc);
-	//	contas.add(poupanca);
-//		banco.setContas(contas);
-//		poupanca.imprimirExtrato();
-	//	banco.imprimirClientes();
-		System.out.println("Digite a opção desejada");
-		System.out.println("1 - Criar nova conta");
-		System.out.println("2 - Imprimir clientes");
-		opcao = scan.nextInt();
-		menu(opcao,contas,banco);
-
-	}
-	private static 
-	void menu (int opcao , List<Conta> contas, Banco banco) 
-	{
-		Scanner scan = new Scanner(System.in);
-		String nome = new String("");
-		
-		int i;
-		switch (opcao) 
+		Map<String,String> indiceContas = new HashMap<String, String>();
+		do
 		{
-		    case 1: nome = scan.next();
-		    		 Cliente cliente = new Cliente();
-		    		 cliente.setNome(nome);
-		    		 do {
-		    			 System.out.println("Digite o código do tipod e conta");
-		    			 System.out.println("1 - Conta Corrente");
-		    			 System.out.println("2 - Conta Poupança");
-		    			 i = scan.nextInt();
-		    			 if (i==1) { 
-		    				 Conta cc = new ContaCorrente(cliente);
-		    				 contas.add(cc);
-		    			 	}
-		    			 else {if (i==2) 
-		    			 		{ 
-		    				 		Conta poupanca = new ContaPoupanca(cliente);
-		    				 		contas.add(poupanca);
-		    				 	}
-		    			 	}
-		    			 } while ((i<1) |( i>2));
-		    		 break;
-		    
-		    case 2: banco.imprimirClientes();
-		    	 	break;
-		    default:
-		    throw new IllegalArgumentException("Unexpected value: " + opcao);
+			Menu tela = new Menu(opcao);
+			opcao = tela.getOpcao();
+			switch (opcao) {
+			case 1: 
+					Menu tipoConta = new Menu(opcao,banco);
+					if (tipoConta.getOpcao()==1){
+						Conta cc = new ContaCorrente(tipoConta.getCliente());
+						contas.add(cc);
+						indiceContas.put(cc.getCliente().getNome(),cc.toString() );
+					} else {
+						if (tipoConta.getOpcao()==2) {
+							Conta poupanca = new ContaPoupanca(tipoConta.getCliente());
+							contas.add(poupanca);
+							indiceContas.put(poupanca.getCliente().getNome(), poupanca.toString());
+							}
+						}
+					break;
+			case 2: banco.setContas(contas);
+					banco.imprimirClientes();
+					break;
+			case 3:
+					System.out.println("Digite o nome do titular");
+					nome=scan.next();
+					indice = Integer.parseInt(indiceContas.get(nome))-1;
+					System.out.println("Digite o valor a depositar");
+					valor=scan.nextDouble();
+					contas.get(indice).depositar(valor);
+					break;
+			case 4:
+					System.out.println("Digite o nome do titular");
+					nome=scan.next();
+					indice = Integer.parseInt(indiceContas.get(nome))-1;
+					System.out.println("Digite o valor a sacar");
+					valor=scan.nextDouble();
+					contas.get(indice).sacar(valor);
+					break;
+					
+			case 5:
+					System.out.println("Digite o nome do titular de origem");
+					nome=scan.next();
+					indice = Integer.parseInt(indiceContas.get(nome))-1;
+					System.out.println("Digite o nome do titular de destino");
+					destino=scan.next();
+					indiceDestino = Integer.parseInt(indiceContas.get(destino))-1;
+					System.out.println("Digite o valor a depositar");
+					valor=scan.nextDouble();
+					contas.get(indice).transferir(valor, contas.get(indiceDestino));
+					break;
+			
+			} 
+		} while (opcao!=6);
 	}
-	}
-
 }
